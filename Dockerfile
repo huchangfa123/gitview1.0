@@ -17,7 +17,7 @@ RUN npm install
 RUN npm run build
 
 RUN apk del devs
-RUN cd ./dist
+WORKDIR ./dist
 
 # 把端口对外开放
 EXPOSE 80
