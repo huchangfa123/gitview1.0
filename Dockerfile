@@ -1,8 +1,8 @@
 # set base image
-FROM node:latest
+FROM centos_with_net
 MAINTAINER Huchangfa <hcf1095246249@qq.com>
 
-RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel
+RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel yarn npm nodejs
 ADD http://nginx.org/download/nginx-1.12.0.tar.gz
 RUN tar zxvf nginx-1.12.0.tar.gz .
 RUN mkdir -p /usr/local/nginx
