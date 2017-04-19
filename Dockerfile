@@ -1,5 +1,5 @@
 # set base image
-FROM node: latest
+FROM node:latest
 MAINTAINER Huchangfa <hcf1095246249@qq.com>
 
 # Install Nginx
