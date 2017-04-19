@@ -2,32 +2,19 @@
 FROM node:latest
 MAINTAINER Huchangfa <hcf1095246249@qq.com>
 
-ENV NGINX_VERSION 1.12.0~jessie
-
-RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
-	&& echo "deb http://nginx.org/packages/debian/ jessie nginx" >> /etc/apt/sources.list \
-	&& apt-get update \
-	&& apt-get install --no-install-recommends --no-install-suggests -y \
-						ca-certificates \
-						nginx=${NGINX_VERSION} \
-						nginx-module-xslt \
-						nginx-module-geoip \
-						nginx-module-image-filter \
-						nginx-module-perl \
-						nginx-module-njs \
-						gettext-base \
-	&& rm -rf /var/lib/apt/lists/*
+RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel
+ADD http://nginx.org/download/nginx-1.12.0.tar.gz
+RUN tar zxvf nginx-1.12.0.tar.gz .
+RUN mkdir -p /usr/local/nginx
+RUN cd nginx-1.12.0 && ./configure --prefix=/usr/local/nginx && make && make install
 
 COPY package.json /tmp/package.json
 RUN cd /tmp && NPM_CONFIG_LOGLEVEL=warn yarn install
 COPY . /tmp
 RUN cd /tmp && yarn run build
-RUN rm -rf /usr/share/nginx/html && mv /tmp/dist /usr/share/nginx/html
-COPY nginx-site.conf /etc/nginx/conf.d/default.conf
 
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log
-
+RUN rm -vf /usr/local/nginx/conf/nginx.conf
+COPY .nginx_conf /usr/local/nginx/conf/nginx.conf
 EXPOSE 80
+
 CMD nginx -g 'daemon off;'
