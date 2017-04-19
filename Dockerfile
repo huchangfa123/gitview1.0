@@ -1,12 +1,10 @@
 # set base image
-FROM centos_with_net
+FROM ubuntu
 MAINTAINER Huchangfa <hcf1095246249@qq.com>
 
-RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel yarn npm nodejs
-ADD http://nginx.org/download/nginx-1.12.0.tar.gz
-RUN tar zxvf nginx-1.12.0.tar.gz .
-RUN mkdir -p /usr/local/nginx
-RUN cd nginx-1.12.0 && ./configure --prefix=/usr/local/nginx && make && make install
+RUN apt-get -y update && apt-get install -y nginx && apt-get install -y nodejs && apt-get install -y yarn && apt-get install -y npm
+ADD nginx/global.conf /etc/nginx/conf.d/
+ADD nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY package.json /tmp/package.json
 RUN cd /tmp && NPM_CONFIG_LOGLEVEL=warn yarn install
