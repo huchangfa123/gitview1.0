@@ -1,5 +1,5 @@
 # 获取相应语言的镜像
-FROM node:latest 
+FROM mhart/alpine-node 
 # 设置该镜像的作者
 MAINTAINER huchangfa<hcf1095246249@qq.com>
 
