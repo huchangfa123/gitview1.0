@@ -11,8 +11,6 @@ RUN cd /tmp && NPM_CONFIG_LOGLEVEL=warn yarn install
 COPY . /tmp
 RUN cd /tmp && yarn run build
 
-RUN rm -vf /usr/local/nginx/conf/nginx.conf
-COPY .nginx_conf /usr/local/nginx/conf/nginx.conf
 EXPOSE 80
 
 CMD nginx -g 'daemon off;'
