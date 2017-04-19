@@ -2,34 +2,32 @@
 FROM node:latest
 MAINTAINER Huchangfa <hcf1095246249@qq.com>
 
-# Install Nginx
-# Add application repository URL to the default sources
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ raring main universe" >> /etc/apt/sources.list
+ENV NGINX_VERSION 1.10.3-1~jessie
 
-# Update the repository
-RUN apt-get update
+RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
+	&& echo "deb http://nginx.org/packages/debian/ jessie nginx" >> /etc/apt/sources.list \
+	&& apt-get update \
+	&& apt-get install --no-install-recommends --no-install-suggests -y \
+						ca-certificates \
+						nginx=${NGINX_VERSION} \
+						nginx-module-xslt \
+						nginx-module-geoip \
+						nginx-module-image-filter \
+						nginx-module-perl \
+						nginx-module-njs \
+						gettext-base \
+	&& rm -rf /var/lib/apt/lists/*
 
-# Install necessary tools
-RUN apt-get install -y nano wget dialog net-tools
+COPY package.json /tmp/package.json
+RUN cd /tmp && NPM_CONFIG_LOGLEVEL=warn yarn install
+COPY . /tmp
+RUN cd /tmp && yarn run build
+RUN rm -rf /usr/share/nginx/html && mv /tmp/dist /usr/share/nginx/html
+COPY nginx-site.conf /etc/nginx/conf.d/default.conf
 
-# Download and Install Nginx
-RUN apt-get install -y nginx
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
-# npm install 
-RUN yarn install
-
-# Remove the default Nginx configuration file
-RUN rm -v /etc/nginx/nginx.conf
-
-# Copy a configuration file from the current directory
-ADD nginx.conf /etc/nginx/
-
-# Append "daemon off;" to the beginning of the configuration
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-
-# Expose ports
 EXPOSE 80
-
-# Set the default command to execute
-# when creating a new container
-CMD service nginx start
+CMD nginx -g 'daemon off;'
