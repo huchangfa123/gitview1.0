@@ -1,16 +1,13 @@
-# set base image
-FROM ubuntu
-MAINTAINER Huchangfa <hcf1095246249@qq.com>
+# 获取相应语言的镜像
+FROM node:latest 
+# 设置该镜像的作者
+MAINTAINER huchangfa<hcf1095246249@qq.com>
 
-RUN apt-get -y update && apt-get install -y nginx && apt-get install -y nodejs &&  apt-get install -y npm
-ADD ~/.nginx/global.conf /etc/nginx/conf.d/
-ADD ~/.nginx/nginx.conf /etc/nginx/nginx.conf
-
-COPY package.json /tmp/package.json
-RUN cd /tmp && NPM_CONFIG_LOGLEVEL=warn npm install
-COPY . /tmp
-RUN cd /tmp && npm run build
-
-EXPOSE 80
-
-CMD nginx -g 'daemon off;'
+WORKDIR /gitview
+COPY . /gitview/
+# 安装nodemoudule里面的包，yarn限制了安装版本，速度更快
+RUN yarn install
+# 把端口对外开放
+EXPOSE 3007
+# 指定首个运行的文件
+ENTRYPOINT npm run dev
