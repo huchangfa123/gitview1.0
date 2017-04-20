@@ -9,6 +9,6 @@ COPY . /gitview/
 # 安装nodemoudule里面的包，yarn限制了安装版本，速度更快
 RUN yarn install
 # 把端口对外开放
-EXPOSE 3007
+EXPOSE 3008
 # 指定首个运行的文件
 ENTRYPOINT node start.js
