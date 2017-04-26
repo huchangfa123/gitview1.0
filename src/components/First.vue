@@ -10,6 +10,7 @@
 <script>
 import _ from 'lodash'
 import echarts from 'echarts'
+import { mapActions } from 'vuex'
 export default {
   name: 'first',
   mounted () {
@@ -28,20 +29,21 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['getLanguageData']),
     async getpiedata () {
       var data1 = []
-      await this.$http.get('http://www.kongin.cn/git-view/search/languages').then(response => {
-        console.log(response)
-        for (let i = 0; i < response.body.length; i++) {
-          let res = response.body[i]
-          var value = _.cloneDeep(res.repo)
-          var name = _.cloneDeep(res.language)
-          data1.push({value, name})
-          this.piedata = _.cloneDeep(data1)
-        }
-        console.log(this.piedata)
-        this.drawpiegraph('Echa')
-      })
+      let response = await this.getLanguageData()
+      console.log(response)
+      for (let i = 0; i < response.body.length; i++) {
+        let res = response.body[i]
+        var value = _.cloneDeep(res.repo)
+        var name = _.cloneDeep(res.language)
+        data1.push({value, name})
+        console.log(data1)
+        this.piedata = _.cloneDeep(data1)
+      }
+      console.log(this.piedata)
+      this.drawpiegraph('Echa')
     },
     async drawpiegraph (id) {
       this.chart = echarts.init(document.getElementById(id))
@@ -109,22 +111,17 @@ export default {
       })
     },
     async getbardata () {
-      await this.$http.get('http://www.kongin.cn/git-view/search/languages').then(response => {
-        console.log(response)
-        for (let i = 0; i < response.body.length; i++) {
-          let res = response.body[i]
-          let value1 = _.cloneDeep(res.language)
-          let value2 = _.cloneDeep(res.repo)
-          let value3 = _.cloneDeep(res.users)
-          this.bardatalanguage.push(value1)
-          this.bardatarepo.push(value2)
-          this.bardatausers.push(value3)
-        }
-        console.log(this.bardatalanguage)
-        console.log(this.bardatarepo)
-        console.log(this.bardatausers)
-        this.drawbargraph('barEcha')
-      })
+      let response = await this.getLanguageData()
+      for (let i = 0; i < response.body.length; i++) {
+        let res = response.body[i]
+        let value1 = _.cloneDeep(res.language)
+        let value2 = _.cloneDeep(res.repo)
+        let value3 = _.cloneDeep(res.users)
+        this.bardatalanguage.push(value1)
+        this.bardatarepo.push(value2)
+        this.bardatausers.push(value3)
+      }
+      this.drawbargraph('barEcha')
     },
     async drawbargraph (id) {
       this.chart = echarts.init(document.getElementById(id))
